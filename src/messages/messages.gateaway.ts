@@ -1,24 +1,28 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
-import { Server, Socket } from 'socket.io/dist';
+import { Server, Socket } from 'socket.io'
+import { CreateRoomDto } from './dto/create-room.dto';
 
-
+//  cors : {
+//     origin: '*',
+//   },
 @WebSocketGateway({
-  cors : {
-    origin: '*',
+  cors: {
+    origin: ['http://localhost:3000'],
   },
 })
-@WebSocketGateway()
+ 
 export class MessagesGateway {
   constructor(private readonly messagesService: MessagesService) {}
-
-  @WebSocketServer()
+ @WebSocketServer()
   server: Server;
 
-//   @SubscribeMessage('createRoom')
-//   create(@MessageBody() createMessageDto: CreateMessageDto, @ConnectedSocket() client: Socket) {
-//     return this.messagesService.create(createMessageDto, client);
-//   }
+  // @SubscribeMessage('createRoom')
+  // createRoom(@MessageBody() createRoomDto: CreateRoomDto ) {
+  //   return this.messagesService.create(createRoomDto);
+  // }
+
+  
 
 //   @SubscribeMessage('joinRoom')
 //   findAll() {
@@ -29,5 +33,10 @@ export class MessagesGateway {
 //   findOne(@MessageBody() id: number) {
 //     return this.messagesService.findOne(id);
 //   }
+
+    @SubscribeMessage('testListen')
+    testFunc() {
+      return 'test Approved!'
+    }
 
 }

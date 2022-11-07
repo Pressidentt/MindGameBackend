@@ -1,3 +1,7 @@
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './user/user.module';
+import { BoardModule } from './board/board.module';
+import { MessagesModule } from './messages/messages.module';
 import { BoardCards } from './board/board-cards.model';
 import { UserCards } from './user/user-card.model';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -26,7 +30,10 @@ import {ConfigModule} from "@nestjs/config";
             models: [User, Board, Card, UserCards, BoardCards],
             autoLoadModels: true
         }),
-        
+       MessagesModule,
+       BoardModule,
+       UsersModule,
+       AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
