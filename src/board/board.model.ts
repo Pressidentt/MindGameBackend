@@ -2,10 +2,12 @@ import { BoardCards } from './board-cards.model';
 import { User } from '../user/user.model';
 import {BelongsToMany, Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
 import { Card } from './card.model';
+import { ApiTags } from '@nestjs/swagger';
 
 interface BoardCreationAttrs {
     boardPassword: string;
 }
+
 @Table({tableName: 'board'})
 export class Board extends Model<Board, BoardCreationAttrs> {
 
