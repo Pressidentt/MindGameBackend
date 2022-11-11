@@ -12,7 +12,7 @@ export class BoardController{
 constructor (   private boardService: BoardService
 ) {}
 
-    @ApiOperation({summary:'Create room(board)'})
+    @ApiOperation({summary:'Create room(board), then should be transfered to socket{createRoom}'})
     @UseGuards(JwtAuthGuard)
     @Post('createRoom')
     async createRoom( @Body() createRoomDto: CreateRoomDto,
@@ -20,7 +20,7 @@ constructor (   private boardService: BoardService
         return await this.boardService.createRoom(createRoomDto, userId)
     }
 
-    @ApiOperation({summary:'Join to the room(board)'})
+    @ApiOperation({summary:'Join to the room(board), then should be transfered to socket{createRoom}'})
     @UseGuards(JwtAuthGuard)
     @Post('joinRoom')
     async joinRoom( @Body() createRoomDto: CreateRoomDto,

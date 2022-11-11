@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/user/user.model';
+import { LoginUserDto } from '../user/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
     constructor(@InjectModel(User) private userRepository: typeof User,
                 private jwtService: JwtService) {}
 
-    async login(userDto: CreateUserDto) {
+    async login(userDto: LoginUserDto) {
         const user = await this.validateUser(userDto)
         return this.generateToken(user)
     }
@@ -38,7 +39,7 @@ export class AuthService {
         }
     }
 
-    private async validateUser(userDto: CreateUserDto) {
+    private async validateUser(userDto: LoginUserDto) {
         const user = await this.userRepository.findOne({where: {email: userDto.email}, include: {all: true}})
 
         const passwordEquals = await bcrypt.compare(userDto.password, user.password);

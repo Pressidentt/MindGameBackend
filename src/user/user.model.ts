@@ -24,6 +24,9 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING })
     name: string;
 
+    @Column({type: DataType.STRING, allowNull: true})
+    socketId: string;
+
     @BelongsToMany(() => Card, () => UserCards)
     cards: Card[];
 

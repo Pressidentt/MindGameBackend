@@ -14,5 +14,6 @@ import { User } from 'src/user/user.model';
       SequelizeModule.forFeature([Board, Card, User]),
       JwtModule
   ],
+  exports: [BoardService]
 })
 export class BoardModule{}
