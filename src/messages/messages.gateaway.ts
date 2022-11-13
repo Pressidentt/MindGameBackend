@@ -33,10 +33,10 @@ export class MessagesGateway {
 //     return this.messagesService.findAll();
 //   }
 
-//   @SubscribeMessage('listenToBoard')
-//   findOne(@MessageBody() id: number) {
-//     return this.messagesService.findOne(id);
-//   }
+  @SubscribeMessage('listenToBoard')
+  findOne() {
+    //return this.messagesService.findOne(id);
+  }
 
     @SubscribeMessage('testListen')
     testFunc() {
@@ -48,5 +48,4 @@ export class MessagesGateway {
       return this.boardService.socketCreateRoom(createSocketRoomDto, client)
     }
     
-
 }

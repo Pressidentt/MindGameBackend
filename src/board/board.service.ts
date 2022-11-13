@@ -45,6 +45,7 @@ export class BoardService {
         for(let i = 0; i< 100; i++) {
             let card = await this.cardRepository.create();
         }
+        return 'done'
     }
 
     async socketCreateRoom(createSocketRoomDto: CreateSocketRoomDto, client: Socket) {
