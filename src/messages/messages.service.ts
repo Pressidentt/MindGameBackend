@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { ConnectedSocket } from "@nestjs/websockets";
 
 @Injectable()
 export class MessagesService {
@@ -15,4 +16,7 @@ export class MessagesService {
 //   async create(createRoomDto: CreateRoomDto ) {
     
 //   }
+    async listenBoard(@ConnectedSocket() client) {
+        
+    }
 }

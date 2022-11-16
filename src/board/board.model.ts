@@ -14,6 +14,9 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id: number;
 
+    @Column({type: DataType.INTEGER, allowNull: true})
+    createrUserId: number;
+
     @Column({type: DataType.STRING, unique: true, allowNull: false})
     boardPassword: string;
 
