@@ -1,3 +1,4 @@
+import { Board } from './../board/board.model';
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { UserController } from "./user.controller";
@@ -8,7 +9,8 @@ import { UserService } from "./user.service";
   controllers: [UserController],
   providers: [UserService],
   imports: [
-      SequelizeModule.forFeature([User]),
+      SequelizeModule.forFeature([User, Board]),
   ],
+  exports: [UserService]
 })
 export class UsersModule {}

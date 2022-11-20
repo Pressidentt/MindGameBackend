@@ -4,6 +4,7 @@ import { CreateRoomDto } from "src/messages/dto/create-room.dto";
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Client } from 'src/user/decorators/user.decorator';
+import { CardDivideDto } from './dto/card-divide.dto';
 
 
 @ApiTags('Board/Card')
@@ -32,6 +33,16 @@ constructor (   private boardService: BoardService
     @Get('allRooms')
     async allRooms() {
         return await this.boardService.allRooms()
+    }
+
+    @Post('/cardDivide')
+    async testFunc(@Body() cardDivideDto: CardDivideDto) {
+        return await this.boardService.cardDivider(cardDivideDto)
+    }
+
+    @Post('/seederCard')
+    async seedIt() {
+        return await this.boardService.createCardSeeder()
     }
 
 

@@ -1,3 +1,5 @@
+import { UserCards } from './../user/user-card.model';
+import { UsersModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { BoardController } from './board.controller';
 import { Board } from './board.model';
@@ -11,8 +13,9 @@ import { User } from 'src/user/user.model';
   controllers: [BoardController],
   providers: [BoardService],
   imports: [
-      SequelizeModule.forFeature([Board, Card, User]),
-      JwtModule
+      SequelizeModule.forFeature([Board, Card, User, UserCards]),
+      JwtModule,
+      UsersModule,
   ],
   exports: [BoardService]
 })
