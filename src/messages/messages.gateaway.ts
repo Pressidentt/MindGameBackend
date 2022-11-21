@@ -14,36 +14,36 @@ import { CreateSocketRoomDto } from './dto/create-socket-room.dto';
     origin: ['http://localhost:3000'],
   },
 })
- 
+
 export class MessagesGateway {
   constructor(private readonly messagesService: MessagesService,
-              private readonly boardService: BoardService) {}
+    private readonly boardService: BoardService) { }
 
-    @WebSocketServer()
-    server: Server;
+  @WebSocketServer()
+  server: Server;
 
   @SubscribeMessage('listenToBoard')
-    listenBoard(@ConnectedSocket() client: Socket) {
-      return this.messagesService.listenBoard(client);
+  listenBoard(@ConnectedSocket() client: Socket) {
+    return this.messagesService.listenBoard(client);
   }
 
   @SubscribeMessage('playCard')
-    async playCard(@ConnectedSocket() client: Socket) {
-      let boardId = await this.messagesService.boardIdString(client);
-      //TODO
-      let card = await this.messagesService.playCard(client);
-      this.server.to(boardId).emit('message', card);
-      //TODO
+  async playCard(@ConnectedSocket() client: Socket) {
+    let boardId = await this.messagesService.boardIdString(client);
+    //TODO
+    let card = await this.messagesService.playCard(client);
+    this.server.to(boardId).emit('message', card);
+    //TODO
   }
 
   @SubscribeMessage('testListen')
-    testFunc() {
-        return 'test Approved!'
-    }
+  testFunc() {
+    return 'test Approved!'
+  }
 
-    @SubscribeMessage('createRoom')
-      createRoom(@MessageBody() createSocketRoomDto: CreateSocketRoomDto, @ConnectedSocket() client: Socket) {
-        return this.messagesService.socketCreateRoom(createSocketRoomDto, client)
-    }
-    
+  @SubscribeMessage('createRoom')
+  createRoom(@MessageBody() createSocketRoomDto: CreateSocketRoomDto, @ConnectedSocket() client: Socket) {
+    return this.messagesService.socketCreateRoom(createSocketRoomDto, client)
+  }
+
 }

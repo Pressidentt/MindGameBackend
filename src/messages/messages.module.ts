@@ -7,4 +7,4 @@ import { BoardModule } from '../board/board.module';
     imports: [BoardModule],
     providers: [MessagesService, MessagesGateway]
 })
-export class MessagesModule {}
+export class MessagesModule { }
