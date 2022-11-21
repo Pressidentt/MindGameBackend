@@ -10,6 +10,7 @@ import { User } from "src/user/user.model";
 import { CreateSocketRoomDto } from "../messages/dto/create-socket-room.dto";
 import { Board } from "./board.model";
 import { Card } from "./card.model";
+import { v4 as uuid } from "uuid";
 
 @Injectable()
 export class BoardService {
@@ -22,8 +23,9 @@ export class BoardService {
              private userSerive: UserService
     ) {}
 
-    async createRoom(createRoomDto: CreateRoomDto, userId: number) {
-    const board = await this.boardRepository.create({boardPassword: createRoomDto.boardPassword});
+    async createRoom(userId: number) {
+    const generatedPassword = uuid();
+    const board = await this.boardRepository.create({boardPassword: generatedPassword});
     const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
     realUser.boardId = board.id;
     await realUser.save();
@@ -31,19 +33,25 @@ export class BoardService {
     }
 
     async joinRoom(createRoomDto: CreateRoomDto, userId: number) {
-    const board = await this.boardRepository.findOne({
-        where: {boardPassword: createRoomDto.boardPassword}, include: {all: true}
-    })
-    const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
-    board.createrUserId = realUser.id
-    await board.save();
-    realUser.boardId = board.id;
-    await realUser.save();
-    return board;
+        const board = await this.boardRepository.findOne({
+            where: {boardPassword: createRoomDto.boardPassword}, include: {all: true}
+        });
+        const numberOfPlayers = board.users.length;
+
+        if( !(board.roomMode - numberOfPlayers) ) {
+            throw new HttpException('Room is full', HttpStatus.BAD_REQUEST);
+        }
+
+        const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
+        board.createrUserId = realUser.id;
+        await board.save();
+        realUser.boardId = board.id;
+        await realUser.save();
+        return board;
     }
 
     async allRooms() {
-        return await this.boardRepository.findAll({include: {all: true}})
+        return await this.boardRepository.findAll({include: {all: true}});
     }
 
     async createCardSeeder() {
@@ -62,15 +70,27 @@ export class BoardService {
         return realUser;
     }
 
-    async gameStart(userId: number, boardId: number) {
+    async gameStart(userId: number, cardDivideDto: CardDivideDto) {
+        const boardId = Number(cardDivideDto.boardId);
         const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
         const board = await this.boardRepository.findOne({where: {id: boardId}, include: {all: true}})
-        if(realUser.id != board.createrUserId) {
-        throw new HttpException('The game can be started only by its creator', HttpStatus.BAD_REQUEST);
-    }
-    //gameFunc(cardDivider, then listenBoard, putCard)
+        const numberOfPlayers = board.users.length;
+
+        if(realUser.id !== board.createrUserId) {
+            throw new HttpException('The game can be started only by its creator', HttpStatus.BAD_REQUEST);
+        }
+        if(numberOfPlayers !== board.roomMode) {
+            throw new HttpException('Not enough number of players', HttpStatus.BAD_REQUEST); 
+        }
+
+        let dto = new CardDivideDto;
+        dto.boardId = board.id;
+        const cardDivide = await this.cardDivider(dto);
+        
+        return cardDivide ;
     }
 
+    //gameFunc(cardDivider, then listenBoard, putCard)
     async cardDivider(cardDivideDto: CardDivideDto) {
         let boardId = Number(cardDivideDto.boardId);
         let idsArr = await this.userSerive.idGetter(boardId)
@@ -84,7 +104,7 @@ export class BoardService {
                 cardArr.push(cardNum)
             }
         }
-        for(let i = 0; i< 3; i++ ) {
+        for(let i = 0; i< 4; i++ ) {
             let user = await this.userRepository.findOne({where: {id: idsArr[i]}, include: {all: true}});
             let card = await this.cardRepository.findOne({where: {id: cardArr[i]}, include: {all: true}}); 
             let userCard = await this.cardUserCardRepository.create({
@@ -93,7 +113,7 @@ export class BoardService {
             }) 
             await userCard.save();
         }
-        return 'done'
+        return true ;
     }
     
 }

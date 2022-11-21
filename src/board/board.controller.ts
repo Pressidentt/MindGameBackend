@@ -16,9 +16,8 @@ constructor (   private boardService: BoardService
     @ApiOperation({summary:'Create room(board), then should be transfered to socket{createRoom}'})
     @UseGuards(JwtAuthGuard)
     @Post('createRoom')
-    async createRoom( @Body() createRoomDto: CreateRoomDto,
-    @Client('id') userId: number ) {
-        return await this.boardService.createRoom(createRoomDto, userId)
+    async createRoom( @Client('id') userId: number ) {
+        return await this.boardService.createRoom(userId)
     }
 
     @ApiOperation({summary:'Join to the room(board), then should be transfered to socket{createRoom}'})
@@ -35,9 +34,11 @@ constructor (   private boardService: BoardService
         return await this.boardService.allRooms()
     }
 
-    @Post('/cardDivide')
-    async testFunc(@Body() cardDivideDto: CardDivideDto) {
-        return await this.boardService.cardDivider(cardDivideDto)
+    @Post('/startGame')
+    async testFunc(@Body() cardDivideDto: CardDivideDto, 
+        @Client('id') userId: number 
+    ) {
+        return await this.boardService.gameStart(userId, cardDivideDto)
     }
 
     @Post('/seederCard')
