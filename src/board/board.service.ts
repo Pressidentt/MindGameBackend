@@ -54,6 +54,15 @@ export class BoardService {
         return await this.boardRepository.findAll({include: {all: true}});
     }
 
+    async isUserInRoom(boardId: number, userId: number): Promise<boolean>{
+        const ids = await this.userSerive.idGetter(boardId);
+        if (ids.some((elem)=> elem === userId)) {
+            return true;
+        }
+        return false;
+        
+    }
+
     async createCardSeeder() {
         for(let i = 0; i< 100; i++) {
             let card = await this.cardRepository.create();
@@ -61,16 +70,7 @@ export class BoardService {
         return 'done'
     }
 
-   async socketCreateRoom(createSocketRoomDto: CreateSocketRoomDto, client: Socket) {
-        const token = createSocketRoomDto.token;
-        const jwtUser = await this.jwtService.verify(token, { secret: process.env.PRIVATE_KEY })
-        const realUser = await this.userRepository.findOne({where: { id: jwtUser.id}, include: {all: true}}) 
-        realUser.socketId = client.id;
-        await realUser.save();
-        return realUser;
-    }
-
-    async gameStart(userId: number, cardDivideDto: CardDivideDto) {
+       async gameStart(userId: number, cardDivideDto: CardDivideDto) {
         const boardId = Number(cardDivideDto.boardId);
         const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
         const board = await this.boardRepository.findOne({where: {id: boardId}, include: {all: true}})

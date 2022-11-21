@@ -1,9 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class CreateSocketRoomDto{
 
     @ApiProperty({example: 'token...', description: 'User jwt token'})
     @IsString()
     token: string;
+    
+
+    @ApiProperty({example: '4', description: 'Board Id'})
+    @IsNumber()
+    boardId: number;
 }
