@@ -1,3 +1,4 @@
+import { PlayCardDto } from './dto/play-card.dto';
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
 import { Server, Socket } from 'socket.io'
@@ -28,12 +29,10 @@ export class MessagesGateway {
   }
 
   @SubscribeMessage('playCard')
-  async playCard(@ConnectedSocket() client: Socket) {
-    let boardId = await this.messagesService.boardIdString(client);
-    //TODO
-    let card = await this.messagesService.playCard(client);
-    this.server.to(boardId).emit('message', card);
-    //TODO
+  async playCard(@ConnectedSocket() client: Socket, @MessageBody() dto: PlayCardDto ) {
+    let boardId = Number(dto.boardId);
+    let card = await this.messagesService.playCard(client, dto);
+    this.server.to(String(boardId)).emit('message', card);
   }
 
   @SubscribeMessage('testListen')

@@ -1,3 +1,6 @@
+import { BoardCards } from './../board/board-cards.model';
+import { UserCards } from './../user/user-card.model';
+import { PlayCardDto } from './dto/play-card.dto';
 import { BoardService } from './../board/board.service';
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -14,6 +17,8 @@ export class MessagesService {
     constructor(@InjectModel(User) private userRepository: typeof User,
         @InjectModel(Board) private boardRepository: typeof Board,
         @InjectModel(Card) private cardRepository: typeof Card,
+        @InjectModel(UserCards) private userCardRepository: typeof UserCards,
+        @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
         private jwtService: JwtService,
         private boardService: BoardService
     ) { }
@@ -34,9 +39,11 @@ export class MessagesService {
         return board.cards;
     }
 
-    async playCard(client: Socket) {
-        const card = await this.cardRepository.findOne({ where: { id: 1 } })
-        return card;
+    async playCard(client: Socket, dto: PlayCardDto) {
+        const user = await this.userRepository.findOne({ where: {socketId: client.id }, include: {all: true}})
+        const cardDeleteFromUser = await this.userCardRepository.destroy({ where: {cardId: dto.cardId, userId: user.id}}) 
+        const cardForBoard = await this.boardCardRepository.create({cardId: dto.cardId, boardId: dto.boardId });
+        return await cardForBoard.save();
     }
 
     async boardIdString(client: Socket) {
@@ -52,5 +59,9 @@ export class MessagesService {
         await client.join(`${createSocketRoomDto.boardId}`);
         await realUser.save();
         return realUser;
+    }
+
+    async socketsLeave(socket: Socket, socketName: string) {
+       await socket.leave(socketName);
     }
 }
