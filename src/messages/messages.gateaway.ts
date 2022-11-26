@@ -6,26 +6,31 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Client } from '../user/decorators/user.decorator';
 import { BoardService } from '../board/board.service';
 import { CreateSocketRoomDto } from './dto/create-socket-room.dto';
+import { AuthService } from '../auth/auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 //  cors : {
 //     origin: '*',
 //   },
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:5000'],
   },
 })
 
 export class MessagesGateway {
   constructor(private readonly messagesService: MessagesService,
-    private readonly boardService: BoardService) { }
+    private readonly boardService: BoardService,
+    private readonly authService: AuthService,
+    private jwtService: JwtService) {}
 
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('listenToBoard')
-  listenBoard(@ConnectedSocket() client: Socket) {
-    return this.messagesService.listenBoard(client);
+  async listenBoard(@ConnectedSocket() client: Socket) {
+    const user = await this.jwtService.verifyAsync(client.handshake.headers.authorization);
+    return await this.messagesService.listenBoard(client);
   }
 
   @SubscribeMessage('playCard')
@@ -41,8 +46,9 @@ export class MessagesGateway {
   }
 
   @SubscribeMessage('createRoom')
-  createRoom(@MessageBody() createSocketRoomDto: CreateSocketRoomDto, @ConnectedSocket() client: Socket) {
-    return this.messagesService.socketCreateRoom(createSocketRoomDto, client)
+  async createRoom(@ConnectedSocket() client: Socket) {
+    
+    return this.messagesService.socketCreateRoom(client)
   }
 
 }

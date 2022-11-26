@@ -68,13 +68,23 @@ export class MessagesService {
     }
 
 
-    async socketCreateRoom(createSocketRoomDto: CreateSocketRoomDto, client: Socket) {
-        const token = createSocketRoomDto.token;
-        console.log(token)
-        const jwtUser = await this.jwtService.verify(token, { secret: process.env.PRIVATE_KEY })
-        const realUser = await this.userRepository.findOne({ where: { id: jwtUser.id }, include: { all: true } })
+    async socketCreateRoom(client: Socket) {
+        console.log(client.handshake.query)
+        if(!client.handshake.query.token)  {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        if(!client.handshake.query.boardId)  {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        if(Array.isArray(client.handshake.query.token)) {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        const userToken: string = client.handshake.query.token;
+        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
+        const boardId = client.handshake.query.boardId;
+        const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
         realUser.socketId = client.id;
-        await client.join(`${createSocketRoomDto.boardId}`);
+        await client.join(`${boardId}`);
         await realUser.save();
         return realUser;
     }

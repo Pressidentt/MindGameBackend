@@ -29,6 +29,9 @@ export class BoardService {
     const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
     realUser.boardId = board.id;
     await realUser.save();
+    board.createrUserId = realUser.id;
+    await board.save();
+
     return board;
     }
 
@@ -43,8 +46,6 @@ export class BoardService {
         }
 
         const realUser = await this.userRepository.findOne({where: {id: userId}, include: {all:true}})
-        board.createrUserId = realUser.id;
-        await board.save();
         realUser.boardId = board.id;
         await realUser.save();
         return board;

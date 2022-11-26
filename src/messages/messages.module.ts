@@ -11,13 +11,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from 'src/user/user.model';
 import { Board } from 'src/board/board.model';
 import { UsersModule } from 'src/user/user.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [BoardModule,
     SequelizeModule.forFeature([User, Board, BoardCards, UserCards, Card]),
     UsersModule,
     BoardModule,
-    JwtModule
+    JwtModule,
+    AuthModule
     ],
     providers: [MessagesService, MessagesGateway]
 })
