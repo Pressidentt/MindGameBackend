@@ -6,6 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 interface BoardCreationAttrs {
     boardPassword: string;
+    roomMode?: number;
 }
 
 @Table({tableName: 'board'})

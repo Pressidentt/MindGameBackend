@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
-export class CreateRoomDto {
+export class CreateRoomDto{
 
-    @ApiProperty({example: '1234', description: 'Unic board(room) password'})
-    @IsString()
-    boardPassword: string;
+    @ApiProperty({ example: 'from 2 to 6', description: 'Number of players in the room' })
+    @IsNumber()
+    numberOfPlayers: number;
 }

@@ -42,25 +42,25 @@ export class MessagesService {
     }
 
     async playCard(client: Socket, dto: PlayCardDto) {
-        const user = await this.userRepository.findOne({ where: {socketId: client.id }, include: {all: true}})
+        const user = await this.userRepository.findOne({ where: { socketId: client.id }, include: { all: true } })
         let check = await this.ruleChecker(dto.boardId, dto.cardId);
-        const cardDeleteFromUser = await this.userCardRepository.destroy({ where: {cardId: dto.cardId, userId: user.id}}) 
-        const cardForBoard = await this.boardCardRepository.create({cardId: dto.cardId, boardId: dto.boardId });
+        const cardDeleteFromUser = await this.userCardRepository.destroy({ where: { cardId: dto.cardId, userId: user.id } })
+        const cardForBoard = await this.boardCardRepository.create({ cardId: dto.cardId, boardId: dto.boardId });
         return await cardForBoard.save();
     }
 
     async ruleChecker(boardId: number, cardId: number) {
         const cardsUsersArr = []
         const userIds = await this.userService.idGetter(boardId)
-       for( const user of userIds) {
-            for(const card of user.cards) {
+        for (const user of userIds) {
+            for (const card of user.cards) {
                 cardsUsersArr.push(Number(card.id))
             }
-       }
-       if (cardsUsersArr.some((el)=> el < cardId)) {
+        }
+        if (cardsUsersArr.some((el) => el < cardId)) {
             throw new HttpException('GAME OVER!', HttpStatus.BAD_REQUEST);
-       }
-       return true;
+        }
+        return true;
     }
 
     async boardIdString(client: Socket) {
@@ -69,14 +69,10 @@ export class MessagesService {
 
 
     async socketCreateRoom(client: Socket) {
-        console.log(client.handshake.query)
-        if(!client.handshake.query.token)  {
+        if (!(client.handshake.query.token) || !(client.handshake.query.boardId)) {
             throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
         }
-        if(!client.handshake.query.boardId)  {
-            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        }
-        if(Array.isArray(client.handshake.query.token)) {
+        if (Array.isArray(client.handshake.query.token)) {
             throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
         }
         const userToken: string = client.handshake.query.token;
@@ -85,11 +81,10 @@ export class MessagesService {
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
         realUser.socketId = client.id;
         await client.join(`${boardId}`);
-        await realUser.save();
-        return realUser;
+        return await realUser.save();
     }
 
     async socketsLeave(socket: Socket, socketName: string) {
-       await socket.leave(socketName);
+        await socket.leave(socketName);
     }
 }

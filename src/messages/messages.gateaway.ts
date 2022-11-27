@@ -2,7 +2,6 @@ import { PlayCardDto } from './dto/play-card.dto';
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
 import { Server, Socket } from 'socket.io'
-import { CreateRoomDto } from './dto/create-room.dto';
 import { Client } from '../user/decorators/user.decorator';
 import { BoardService } from '../board/board.service';
 import { CreateSocketRoomDto } from './dto/create-socket-room.dto';
@@ -22,7 +21,7 @@ export class MessagesGateway {
   constructor(private readonly messagesService: MessagesService,
     private readonly boardService: BoardService,
     private readonly authService: AuthService,
-    private jwtService: JwtService) {}
+    private jwtService: JwtService) { }
 
   @WebSocketServer()
   server: Server;
@@ -34,7 +33,7 @@ export class MessagesGateway {
   }
 
   @SubscribeMessage('playCard')
-  async playCard(@ConnectedSocket() client: Socket, @MessageBody() dto: PlayCardDto ) {
+  async playCard(@ConnectedSocket() client: Socket, @MessageBody() dto: PlayCardDto) {
     let boardId = Number(dto.boardId);
     let card = await this.messagesService.playCard(client, dto);
     this.server.to(String(boardId)).emit('message', card);
@@ -47,7 +46,7 @@ export class MessagesGateway {
 
   @SubscribeMessage('createRoom')
   async createRoom(@ConnectedSocket() client: Socket) {
-    
+
     return this.messagesService.socketCreateRoom(client)
   }
 

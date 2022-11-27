@@ -1,42 +1,43 @@
+import { CreateRoomDto} from 'src/messages/dto/create-room.dto';
 import { BoardService } from './board.service';
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { CreateRoomDto } from "src/messages/dto/create-room.dto";
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Client } from 'src/user/decorators/user.decorator';
 import { CardDivideDto } from './dto/card-divide.dto';
+import { JoinRoomDto } from 'src/messages/dto/join-room.dto';
 
 
 @ApiTags('Board/Card')
 @Controller('board')
-export class BoardController{
-constructor (   private boardService: BoardService
-) {}
+export class BoardController {
+    constructor(private boardService: BoardService
+    ) { }
 
-    @ApiOperation({summary:'Create room(board), then should be transfered to socket{createRoom}'})
+    @ApiOperation({ summary: 'Create room(board), then should be transfered to socket{createRoom}' })
     @UseGuards(JwtAuthGuard)
     @Post('createRoom')
-    async createRoom( @Client('id') userId: number ) {
-        return await this.boardService.createRoom(userId)
+    async createRoom(@Client('id') userId: number, @Body() createRoomDto: CreateRoomDto) {
+        return await this.boardService.createRoom(userId, createRoomDto)
     }
 
-    @ApiOperation({summary:'Join to the room(board), then should be transfered to socket{createRoom}'})
+    @ApiOperation({ summary: 'Join to the room(board), then should be transfered to socket{createRoom}' })
     @UseGuards(JwtAuthGuard)
     @Post('joinRoom')
-    async joinRoom( @Body() createRoomDto: CreateRoomDto,
-    @Client('id') userId: number ) {
-        return await this.boardService.joinRoom(createRoomDto, userId)
+    async joinRoom(@Body() joinRoomDto: JoinRoomDto,
+        @Client('id') userId: number) {
+        return await this.boardService.joinRoom(joinRoomDto, userId)
     }
 
-    @ApiOperation({summary:'Get list of all rooms'})
+    @ApiOperation({ summary: 'Get list of all rooms' })
     @Get('allRooms')
     async allRooms() {
         return await this.boardService.allRooms()
     }
 
     @Post('/startGame')
-    async testFunc(@Body() cardDivideDto: CardDivideDto, 
-        @Client('id') userId: number 
+    async testFunc(@Body() cardDivideDto: CardDivideDto,
+        @Client('id') userId: number
     ) {
         return await this.boardService.gameStart(userId, cardDivideDto)
     }

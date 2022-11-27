@@ -1,13 +1,12 @@
+import { CreateRoomDto } from 'src/messages/dto/create-room.dto';
 import { UserCards } from './../user/user-card.model';
 import { UserService } from 'src/user/user.service';
 import { CardDivideDto } from './dto/card-divide.dto';
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/sequelize";
-import { Socket } from "socket.io";
-import { CreateRoomDto } from "src/messages/dto/create-room.dto";
+import { JoinRoomDto } from 'src/messages/dto/join-room.dto';
 import { User } from "src/user/user.model";
-import { CreateSocketRoomDto } from "../messages/dto/create-socket-room.dto";
 import { Board } from "./board.model";
 import { Card } from "./card.model";
 import { v4 as uuid } from "uuid";
@@ -23,10 +22,14 @@ export class BoardService {
         private userSerive: UserService
     ) { }
 
-    async createRoom(userId: number) {
+    async createRoom(userId: number, createRoomDto: CreateRoomDto) {
         const generatedPassword = uuid();
-        const board = await this.boardRepository.create({ boardPassword: generatedPassword });
-        const realUser = await this.userRepository.findOne({ where: { id: userId }, include: { all: true } })
+        const board = await this.boardRepository.create({
+            boardPassword: generatedPassword, roomMode: createRoomDto.numberOfPlayers
+        });
+        const realUser = await this.userRepository.findOne({ 
+            where: { id: userId }, include: { all: true } 
+        })
         realUser.boardId = board.id;
         await realUser.save();
         board.createrUserId = realUser.id;
@@ -35,9 +38,9 @@ export class BoardService {
         return { board, generatedPassword };
     }
 
-    async joinRoom(createRoomDto: CreateRoomDto, userId: number) {
+    async joinRoom(joinRoomDto: JoinRoomDto, userId: number) {
         const board = await this.boardRepository.findOne({
-            where: { boardPassword: createRoomDto.boardPassword }, include: { all: true }
+            where: { boardPassword: joinRoomDto.boardPassword }, include: { all: true }
         });
         const numberOfPlayers = board.users.length;
 
@@ -84,8 +87,9 @@ export class BoardService {
             throw new HttpException('Not enough number of players', HttpStatus.BAD_REQUEST);
         }
 
-        let dto = new CardDivideDto;
+        const dto = new CardDivideDto;
         dto.boardId = board.id;
+        dto.numberOfPlayers = board.roomMode;
         const cardDivide = await this.cardDivider(dto);
 
         return cardDivide;
@@ -93,10 +97,11 @@ export class BoardService {
 
     //gameFunc(cardDivider, then listenBoard, putCard)
     async cardDivider(cardDivideDto: CardDivideDto) {
-        let boardId = Number(cardDivideDto.boardId);
-        let idsArr = await this.userSerive.idGetter(boardId)
-        let cardArr = [];
-        for (let i = 0; i < 4; i++) {
+        const boardId = Number(cardDivideDto.boardId);
+        const numberOfPlayers = Number(cardDivideDto.numberOfPlayers);
+        const idsArr = await this.userSerive.idGetter(boardId)
+        const cardArr = [];
+        for (let i = 0; i < numberOfPlayers; i++) {
             let cardNum = Math.floor(Math.random() * 101);
             if (cardArr.some((elem) => elem == cardNum)) {
                 i--;
@@ -105,7 +110,7 @@ export class BoardService {
                 cardArr.push(cardNum)
             }
         }
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < numberOfPlayers; i++) {
             let user = await this.userRepository.findOne({ where: { id: idsArr[i] }, include: { all: true } });
             let card = await this.cardRepository.findOne({ where: { id: cardArr[i] }, include: { all: true } });
             let userCard = await this.cardUserCardRepository.create({
@@ -114,7 +119,6 @@ export class BoardService {
             })
             await userCard.save();
         }
-        return true;
     }
 
 }
