@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { BoardCards } from './../board/board-cards.model';
 import { UserCards } from './../user/user-card.model';
 import { PlayCardDto } from './dto/play-card.dto';
@@ -20,7 +21,8 @@ export class MessagesService {
         @InjectModel(UserCards) private userCardRepository: typeof UserCards,
         @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
         private jwtService: JwtService,
-        private boardService: BoardService
+        private boardService: BoardService,
+        private userService: UserService
     ) { }
 
 
@@ -41,9 +43,24 @@ export class MessagesService {
 
     async playCard(client: Socket, dto: PlayCardDto) {
         const user = await this.userRepository.findOne({ where: {socketId: client.id }, include: {all: true}})
+        let check = await this.ruleChecker(dto.boardId, dto.cardId);
         const cardDeleteFromUser = await this.userCardRepository.destroy({ where: {cardId: dto.cardId, userId: user.id}}) 
         const cardForBoard = await this.boardCardRepository.create({cardId: dto.cardId, boardId: dto.boardId });
         return await cardForBoard.save();
+    }
+
+    async ruleChecker(boardId: number, cardId: number) {
+        const cardsUsersArr = []
+        const userIds = await this.userService.idGetter(boardId)
+       for( const user of userIds) {
+            for(const card of user.cards) {
+                cardsUsersArr.push(Number(card.id))
+            }
+       }
+       if (cardsUsersArr.some((el)=> el < cardId)) {
+            throw new HttpException('GAME OVER!', HttpStatus.BAD_REQUEST);
+       }
+       return true;
     }
 
     async boardIdString(client: Socket) {
@@ -51,12 +68,23 @@ export class MessagesService {
     }
 
 
-    async socketCreateRoom(createSocketRoomDto: CreateSocketRoomDto, client: Socket) {
-        const token = createSocketRoomDto.token;
-        const jwtUser = await this.jwtService.verify(token, { secret: process.env.PRIVATE_KEY })
-        const realUser = await this.userRepository.findOne({ where: { id: jwtUser.id }, include: { all: true } })
+    async socketCreateRoom(client: Socket) {
+        console.log(client.handshake.query)
+        if(!client.handshake.query.token)  {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        if(!client.handshake.query.boardId)  {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        if(Array.isArray(client.handshake.query.token)) {
+            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        }
+        const userToken: string = client.handshake.query.token;
+        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
+        const boardId = client.handshake.query.boardId;
+        const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
         realUser.socketId = client.id;
-        await client.join(`${createSocketRoomDto.boardId}`);
+        await client.join(`${boardId}`);
         await realUser.save();
         return realUser;
     }
