@@ -10,6 +10,7 @@ import { User } from "src/user/user.model";
 import { Board } from "./board.model";
 import { Card } from "./card.model";
 import { v4 as uuid } from "uuid";
+import { LevelCardDivideDto } from './dto/level-card-divide.dto';
 
 @Injectable()
 export class BoardService {
@@ -107,18 +108,40 @@ export class BoardService {
                 i--;
             }
             else {
-                cardArr.push(cardNum)
+                cardArr.push(cardNum);
+                let userCard = await this.cardUserCardRepository.create({
+                    userId: idsArr[i],
+                    cardId: cardNum 
+                    })
+                await userCard.save();
             }
         }
-        for (let i = 0; i < numberOfPlayers; i++) {
-            let user = await this.userRepository.findOne({ where: { id: idsArr[i] }, include: { all: true } });
-            let card = await this.cardRepository.findOne({ where: { id: cardArr[i] }, include: { all: true } });
-            let userCard = await this.cardUserCardRepository.create({
-                userId: user.id,
-                cardId: card.id
-            })
-            await userCard.save();
-        }
     }
+
+    async cardDividerForNthRound(levelCardDivideDto: LevelCardDivideDto) {
+        const boardId = Number(levelCardDivideDto.boardId);
+        const numberOfPlayers = Number(levelCardDivideDto.numberOfPlayers);
+        const idsArr = await this.userSerive.idGetter(boardId);
+        const roomLevel = Number(levelCardDivideDto.roundNumber);
+        const cardArr = [];
+
+        for(let k = 0; k< roomLevel; k++) {
+        for (let i = 0; i < numberOfPlayers; i++) {
+            let cardNum = Math.floor(Math.random() * 101);
+            if (cardArr.some((elem) => elem == cardNum)) {
+                i--;
+            }
+            else {
+                cardArr.push(cardNum)
+                let userCard = await this.cardUserCardRepository.create({
+                    userId: idsArr[i],
+                    cardId: cardNum 
+                })
+                await userCard.save();
+            }
+        }
+    }    
+    }
+
 
 }

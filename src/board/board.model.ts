@@ -7,6 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 interface BoardCreationAttrs {
     boardPassword: string;
     roomMode?: number;
+    numberOfRounds?: number;
 }
 
 @Table({tableName: 'board'})
@@ -20,6 +21,9 @@ export class Board extends Model<Board, BoardCreationAttrs> {
 
     @Column({type: DataType.INTEGER, defaultValue: 4})
     roomMode: number;
+
+    @Column({type: DataType.INTEGER, defaultValue: 7})
+    numberOfRounds: number;
 
     @Column({type: DataType.STRING, unique: true, allowNull: false})
     boardPassword: string;
