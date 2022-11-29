@@ -6,6 +6,7 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/sequelize";
 import { Socket } from "socket.io";
 import { CreateRoomDto } from "src/messages/dto/create-room.dto";
+import { CardDivideLevelDto } from './dto/card-divide-level.dto';
 import { User } from "src/user/user.model";
 import { CreateSocketRoomDto } from "../messages/dto/create-socket-room.dto";
 import { Board } from "./board.model";
@@ -20,7 +21,7 @@ export class BoardService {
         @InjectModel(Card) private cardRepository: typeof Card,
         @InjectModel(UserCards) private cardUserCardRepository: typeof UserCards,
         private jwtService: JwtService,
-        private userSerive: UserService
+        private userService: UserService
     ) { }
 
     async createRoom(userId: number) {
@@ -56,7 +57,7 @@ export class BoardService {
     }
 
     async isUserInRoom(boardId: number, userId: number): Promise<boolean> {
-        const ids = await this.userSerive.idGetter(boardId);
+        const ids = await this.userService.idGetter(boardId);
         if (ids.some((elem) => elem === userId)) {
             return true;
         }
@@ -94,7 +95,7 @@ export class BoardService {
     //gameFunc(cardDivider, then listenBoard, putCard)
     async cardDivider(cardDivideDto: CardDivideDto) {
         let boardId = Number(cardDivideDto.boardId);
-        let idsArr = await this.userSerive.idGetter(boardId)
+        let idsArr = await this.userService.idGetter(boardId)
         let cardArr = [];
         for (let i = 0; i < 4; i++) {
             let cardNum = Math.floor(Math.random() * 101);
@@ -117,4 +118,33 @@ export class BoardService {
         return true;
     }
 
+    async cardDividerForNthRound(cardDivideLevelDto: CardDivideLevelDto) {
+        const boardId = Number(cardDivideLevelDto.boardId);
+        const idsArr = await this.userService.idGetter(boardId);
+        const level = Number(cardDivideLevelDto.levelNumber);
+        const cardArr = [];
+
+        for (let i = 0; i < level; i++) {
+            for (let i = 0; i < 4; i++) {
+                let user = await this.userRepository.findOne({where: {id: idsArr[i]}, include: {all: true}});
+                let card = await this.cardRepository.findOne({where: {id: cardArr[i]}, include: {all: true}});
+                let userCard = await this.cardUserCardRepository.create({
+                    userId: user.id,
+                    cardId: card.id
+                })
+                await userCard.save();
+            }
+                for (let i = 0; i < 4; i++) {
+                    let cardNum = Math.floor(Math.random() * 101);
+                    if (cardArr.some((elem) => elem == cardNum)) {
+                        i--;
+                    } else {
+                        cardArr.push(cardNum)
+                        let userCard = await this.cardUserCardRepository.create({})
+                        await userCard.save();
+                    }
+                }
+
+        }
+    }
 }
