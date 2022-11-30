@@ -20,7 +20,7 @@ export class BoardService {
         @InjectModel(Card) private cardRepository: typeof Card,
         @InjectModel(UserCards) private cardUserCardRepository: typeof UserCards,
         private jwtService: JwtService,
-        private userSerive: UserService
+        private userService: UserService
     ) { }
 
     async createRoom(userId: number, createRoomDto: CreateRoomDto) {
@@ -60,7 +60,7 @@ export class BoardService {
     }
 
     async isUserInRoom(boardId: number, userId: number): Promise<boolean> {
-        const ids = await this.userSerive.idGetter(boardId);
+        const ids = await this.userService.idGetter(boardId);
         if (ids.some((elem) => elem === userId)) {
             return true;
         }
