@@ -76,6 +76,8 @@ export class MessagesService {
             throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
         }
         const userToken: string = client.handshake.query.token;
+        client.data.board = client.handshake.query.boardId;
+        await this.boardRepository.create()
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
         const boardId = client.handshake.query.boardId;
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })

@@ -46,7 +46,6 @@ export class MessagesGateway {
 
   @SubscribeMessage('createRoom')
   async createRoom(@ConnectedSocket() client: Socket) {
-
     return this.messagesService.socketCreateRoom(client)
   }
 

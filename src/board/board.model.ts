@@ -20,7 +20,10 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     createrUserId: number;
 
     @Column({type: DataType.INTEGER, defaultValue: 8})
-    levelNumber: number;
+    numberOfLevels: number;
+
+    @Column({type: DataType.INTEGER, defaultValue: 1})
+    currentLevel: number;
 
     @Column({type: DataType.INTEGER, defaultValue: 4})
     roomMode: number;

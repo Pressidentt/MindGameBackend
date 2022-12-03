@@ -1,9 +1,9 @@
 import { IsNumber } from "class-validator";
 
 export class LevelCardDivideDto {
-    
+
     @IsNumber()
-    roundNumber: number;
+    currentRoundNumber: number;
 
     @IsNumber()
     boardId: number;
