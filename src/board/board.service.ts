@@ -28,8 +28,8 @@ export class BoardService {
         const board = await this.boardRepository.create({
             boardPassword: generatedPassword, roomMode: createRoomDto.numberOfPlayers
         });
-        const realUser = await this.userRepository.findOne({ 
-            where: { id: userId }, include: { all: true } 
+        const realUser = await this.userRepository.findOne({
+            where: { id: userId }, include: { all: true }
         })
         realUser.boardId = board.id;
         await realUser.save();
@@ -100,7 +100,7 @@ export class BoardService {
     async cardDivider(cardDivideDto: CardDivideDto) {
         const boardId = Number(cardDivideDto.boardId);
         const numberOfPlayers = Number(cardDivideDto.numberOfPlayers);
-        const idsArr = await this.userSerive.idGetter(boardId)
+        const idsArr = await this.userService.idGetter(boardId)
         const cardArr = [];
         for (let i = 0; i < numberOfPlayers; i++) {
             let cardNum = Math.floor(Math.random() * 101);
@@ -111,8 +111,8 @@ export class BoardService {
                 cardArr.push(cardNum);
                 let userCard = await this.cardUserCardRepository.create({
                     userId: idsArr[i],
-                    cardId: cardNum 
-                    })
+                    cardId: cardNum
+                })
                 await userCard.save();
             }
         }
@@ -121,26 +121,25 @@ export class BoardService {
     async cardDividerForNthRound(levelCardDivideDto: LevelCardDivideDto) {
         const boardId = Number(levelCardDivideDto.boardId);
         const numberOfPlayers = Number(levelCardDivideDto.numberOfPlayers);
-        const idsArr = await this.userSerive.idGetter(boardId);
-        const roomLevel = Number(levelCardDivideDto.roundNumber);
+        const idsArr = await this.userService.idGetter(boardId);
+        const roomLevel = Number(levelCardDivideDto.currentRoundNumber);
         const cardArr = [];
 
-        for(let k = 0; k< roomLevel; k++) {
-        for (let i = 0; i < numberOfPlayers; i++) {
-            let cardNum = Math.floor(Math.random() * 101);
-            if (cardArr.some((elem) => elem == cardNum)) {
-                i--;
-            }
-            else {
-                cardArr.push(cardNum)
-                let userCard = await this.cardUserCardRepository.create({
-                    userId: idsArr[i],
-                    cardId: cardNum 
-                })
-                await userCard.save();
+        for (let k = 0; k < roomLevel; k++) {
+            for (let i = 0; i < numberOfPlayers; i++) {
+                let cardNum = Math.floor(Math.random() * 101);
+                if (cardArr.some((elem) => elem == cardNum)) {
+                    i--;
+                } else {
+                    cardArr.push(cardNum)
+                    let userCard = await this.cardUserCardRepository.create({
+                        userId: idsArr[i],
+                        cardId: cardNum
+                    })
+                    await userCard.save();
+                }
             }
         }
-    }    
     }
 
 
