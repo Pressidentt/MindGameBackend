@@ -16,15 +16,14 @@ import { CreateSocketRoomDto } from "./dto/create-socket-room.dto";
 export class MessagesService {
 
     constructor(@InjectModel(User) private userRepository: typeof User,
-        @InjectModel(Board) private boardRepository: typeof Board,
-        @InjectModel(Card) private cardRepository: typeof Card,
-        @InjectModel(UserCards) private userCardRepository: typeof UserCards,
-        @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
-        private jwtService: JwtService,
-        private boardService: BoardService,
-        private userService: UserService
+                @InjectModel(Board) private boardRepository: typeof Board,
+                @InjectModel(Card) private cardRepository: typeof Card,
+                @InjectModel(UserCards) private userCardRepository: typeof UserCards,
+                @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
+                private jwtService: JwtService,
+                private boardService: BoardService,
+                private userService: UserService
     ) { }
-
 
     async listenBoard(client: Socket) {
         const user = await this.userRepository.findOne({
@@ -76,6 +75,8 @@ export class MessagesService {
             throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
         }
         const userToken: string = client.handshake.query.token;
+        client.data.board = client.handshake.query.boardId;
+        await this.boardRepository.create()
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
         const boardId = client.handshake.query.boardId;
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })

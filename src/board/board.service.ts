@@ -65,7 +65,6 @@ export class BoardService {
             return true;
         }
         return false;
-
     }
 
     async createCardSeeder() {
@@ -130,7 +129,8 @@ export class BoardService {
                 let cardNum = Math.floor(Math.random() * 101);
                 if (cardArr.some((elem) => elem == cardNum)) {
                     i--;
-                } else {
+                }
+                else {
                     cardArr.push(cardNum)
                     let userCard = await this.cardUserCardRepository.create({
                         userId: idsArr[i],
@@ -141,6 +141,4 @@ export class BoardService {
             }
         }
     }
-
-
 }
