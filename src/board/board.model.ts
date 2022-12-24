@@ -22,11 +22,23 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, defaultValue: 8})
     numberOfLevels: number;
 
+    @Column({type: DataType.INTEGER, defaultValue: 10})
+    numberOfLevels3pl: number;
+
+    @Column({type: DataType.INTEGER, defaultValue: 12})
+    numberOfLevels2pl: number;
+
     @Column({type: DataType.INTEGER, defaultValue: 1})
     currentLevel: number;
 
     @Column({type: DataType.INTEGER, defaultValue: 4})
     roomMode: number;
+
+    @Column({type: DataType.INTEGER, defaultValue: 3})
+    roomModeFor3: number;
+
+    @Column({type: DataType.INTEGER, defaultValue: 2})
+    roomModeFor2: number;
 
     @Column({type: DataType.INTEGER, defaultValue: 7})
     numberOfRounds: number;
