@@ -9,9 +9,9 @@ import { UserService } from "../user/user.service";
 @Injectable()
 export class HelperService {
     constructor(@InjectModel(Board) private boardRepository: typeof Board,
-                @InjectModel(Card) private cardRepository: typeof Card,
-                @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
-                private userService: UserService
+        @InjectModel(Card) private cardRepository: typeof Card,
+        @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
+        private userService: UserService
     ) { }
 
     async socketLeave(client: Socket) {
@@ -38,6 +38,7 @@ export class HelperService {
             await board.save();
             return ;
         }
+        //Game Victory
         return board.currentLevel;
     }
 
@@ -47,7 +48,6 @@ export class HelperService {
         });
         const numberOfPlayers = board.users.length;
         let roomLevel = 0;
-
         for(let i = 0; i <= numberOfPlayers; i++) {
             if(i === board.roomMode) {
                 roomLevel = board.numberOfLevels;
@@ -56,8 +56,10 @@ export class HelperService {
                 roomLevel = board.numberOfLevels3pl;
             }
             else if(i === board.roomModeFor2) {
-                roomLevel = board.numberOfLevels2pl
+                roomLevel = board.numberOfLevels2pl;
             }
         }
+        
+        return roomLevel;
     }
 }

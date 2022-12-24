@@ -40,9 +40,6 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, defaultValue: 2})
     roomModeFor2: number;
 
-    @Column({type: DataType.INTEGER, defaultValue: 7})
-    numberOfRounds: number;
-
     @Column({type: DataType.STRING, unique: true, allowNull: false})
     boardPassword: string;
 

@@ -12,6 +12,7 @@ import { User } from 'src/user/user.model';
 import { Board } from 'src/board/board.model';
 import { UsersModule } from 'src/user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { HelperModule } from '../helper/helper.module';
 
 @Module({
     imports: [BoardModule,
@@ -19,7 +20,8 @@ import { AuthModule } from '../auth/auth.module';
     UsersModule,
     BoardModule,
     JwtModule,
-    AuthModule
+    AuthModule,
+    HelperModule
     ],
     providers: [MessagesService, MessagesGateway]
 })
