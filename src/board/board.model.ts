@@ -19,7 +19,7 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: true})
     createrUserId: number;
 
-    @Column({type: DataType.INTEGER, defaultValue: 8})
+    @Column({type: DataType.INTEGER, defaultValue: 7})
     numberOfLevels: number;
 
     @Column({type: DataType.INTEGER, defaultValue: 1})
@@ -27,9 +27,6 @@ export class Board extends Model<Board, BoardCreationAttrs> {
 
     @Column({type: DataType.INTEGER, defaultValue: 4})
     roomMode: number;
-
-    @Column({type: DataType.INTEGER, defaultValue: 7})
-    numberOfRounds: number;
 
     @Column({type: DataType.STRING, unique: true, allowNull: false})
     boardPassword: string;

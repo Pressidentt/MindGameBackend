@@ -28,14 +28,13 @@ export class HelperService {
         return;
     }
 
-    async nextLevel(boardId: number, currentRoundNumber: number) {
-
+    async nextLevel(boardId: number) {
         const board = await this.boardRepository.findOne({
             where: { id: boardId }, include: { all: true }
         });
         await this.deleteCardsFromBoard(boardId);
-        if (board.numberOfLevels - currentRoundNumber) {
-            board.currentLevel = currentRoundNumber++;
+        if (board.numberOfLevels - board.currentLevel) {
+            board.currentLevel = board.currentLevel++;
             await board.save();
             return ;
         }
