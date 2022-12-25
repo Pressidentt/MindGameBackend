@@ -65,7 +65,6 @@ export class BoardService {
             return true;
         }
         return false;
-
     }
 
     async createCardSeeder() {
@@ -142,6 +141,4 @@ export class BoardService {
             }
         }
     }
-
-
 }
