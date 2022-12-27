@@ -38,4 +38,31 @@ export class HelperService {
         return board.currentLevel;
     }
 
+    async levelCount(boardId: number) {
+        const board = await this.boardRepository.findOne({
+            where: { id: boardId }, include: { all: true }
+        });
+        const numberOfPlayers = board.users.length;
+        const numberOfLevels3pl = 10;
+        const numberOfLevels2pl = 12;
+
+        const roomModeFor3 = 3;
+        const roomModeFor2 = 2;
+
+        let roomLevel = 0;
+
+        for(let i = 0; i <= numberOfPlayers; i++) {
+            if(i === board.roomMode) {
+                roomLevel = board.numberOfLevels;
+            }
+            else if(i === roomModeFor3) {
+                roomLevel = numberOfLevels3pl;
+            }
+            else if(i === roomModeFor2) {
+                roomLevel = numberOfLevels2pl;
+            }
+        }
+
+        return roomLevel;
+    }
 }

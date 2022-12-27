@@ -28,7 +28,6 @@ export class MessagesService {
         private helperService: HelperService
     ) { }
 
-
     async listenBoard(client: Socket) {
         const user = await this.userRepository.findOne({
             where: { socketId: client.id }, include: { all: true }
@@ -121,6 +120,8 @@ export class MessagesService {
         }
 
         const userToken: string = client.handshake.query.token;
+        client.data.board = client.handshake.query.boardId;
+        await this.boardRepository.create()
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
