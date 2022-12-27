@@ -3,15 +3,11 @@ import { InjectModel } from "@nestjs/sequelize";
 import { Socket } from "socket.io";
 import { BoardCards } from "../board/board-cards.model";
 import { Board } from "../board/board.model";
-import { Card } from "../board/card.model";
-import { UserService } from "../user/user.service";
 
 @Injectable()
 export class HelperService {
     constructor(@InjectModel(Board) private boardRepository: typeof Board,
-        @InjectModel(Card) private cardRepository: typeof Card,
         @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
-        private userService: UserService
     ) { }
 
     async socketLeave(client: Socket) {
