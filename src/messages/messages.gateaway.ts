@@ -13,7 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 //   },
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:5000'],
+    origin: ['https://mindgamebackend-production.up.railway.app/'],
   },
 })
 
