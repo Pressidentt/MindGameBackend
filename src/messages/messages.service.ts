@@ -86,7 +86,7 @@ export class MessagesService {
         }
 
         const userToken: string = client.handshake.query.token;
-        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY });
+        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
         const roomMode = Number(client.handshake.query.numberOfPlayers);
@@ -121,7 +121,6 @@ export class MessagesService {
 
         const userToken: string = client.handshake.query.token;
         client.data.board = client.handshake.query.boardId;
-        await this.boardRepository.create()
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
