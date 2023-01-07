@@ -7,6 +7,7 @@ import { BoardService } from '../board/board.service';
 import { CreateSocketRoomDto } from './dto/create-socket-room.dto';
 import { AuthService } from '../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { HelperService } from '../helper/helper.service';
 
 //  cors : {
 //     origin: '*',
@@ -21,7 +22,8 @@ export class MessagesGateway {
   constructor(private readonly messagesService: MessagesService,
     private readonly boardService: BoardService,
     private readonly authService: AuthService,
-    private jwtService: JwtService) { }
+    private jwtService: JwtService,
+    private helperService: HelperService) { }
 
   @WebSocketServer()
   server: Server;
@@ -52,6 +54,13 @@ export class MessagesGateway {
   @SubscribeMessage('joinRoom')
   async joinRoom(@ConnectedSocket() client: Socket) {
     return this.messagesService.joinRoom(client)
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async leaveRoom(@ConnectedSocket() client: Socket) {
+    let boardId = client.handshake.query.boardId;
+    await this.server.socketsLeave(String(boardId));
+    return await this.helperService.destroyRoom(Number(boardId), client);
   }
 
 }
