@@ -108,7 +108,7 @@ export class MessagesService {
         await client.join(`${boardId}`);
         await realUser.save();
 
-        return { board, generatedPassword };
+        return await client.emit('generatedPassword', generatedPassword);
     }
 
     async joinRoom(client: Socket) {
@@ -140,7 +140,7 @@ export class MessagesService {
         await realUser.save();
         await client.join(`${boardId}`);
 
-        return board;
+        return await client.emit('joinedRoom', boardId);
     }
 
     async socketsLeave(socket: Socket, socketName: string) {
