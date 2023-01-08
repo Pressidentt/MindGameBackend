@@ -8,6 +8,7 @@ interface BoardCreationAttrs {
     boardPassword: string;
     roomMode?: number;
     numberOfRounds?: number;
+    createrUserId: number;
 }
 
 @Table({tableName: 'board'})

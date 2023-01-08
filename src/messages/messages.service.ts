@@ -95,21 +95,18 @@ export class MessagesService {
 
         const generatedPassword = uuid();
         const board = await this.boardRepository.create({
-            boardPassword: generatedPassword, roomMode
+            boardPassword: generatedPassword, roomMode, createrUserId: realUser.id 
         });
+        await board.save();
 
         const boardId = board.id;
 
-        client.data.board = boardId;
+        // client.data.board = boardId;
         realUser.socketId = client.id;
-
         realUser.boardId = board.id;
-        await realUser.save();
-        board.createrUserId = realUser.id;
-        await board.save();
 
-        await client.join(`${boardId}`);
         await realUser.save();
+        await client.join(`${boardId}`);
 
         return await client.emit('generatedPassword', generatedPassword);
     }
