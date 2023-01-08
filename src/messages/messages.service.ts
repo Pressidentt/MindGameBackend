@@ -13,6 +13,7 @@ import { User } from "src/user/user.model";
 import { CreateSocketRoomDto } from "./dto/create-socket-room.dto";
 import { HelperService } from '../helper/helper.service';
 import { v4 as uuid } from "uuid";
+import { JoinRoomDto } from './dto/join-room.dto';
 
 @Injectable()
 export class MessagesService {
@@ -77,19 +78,21 @@ export class MessagesService {
     }
 
 
-    async socketCreateRoom(client: Socket) {
-        if (!(client.handshake.query.token) || !(client.handshake.query.numberOfPlayers)) {
-            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        }
-        if (Array.isArray(client.handshake.query.token)) {
-            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        }
+    async socketCreateRoom(client: Socket, dto: CreateSocketRoomDto) {
+        // if (!(client.handshake.query.token) || !(client.handshake.query.numberOfPlayers)) {
+        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        // }
+        // if (Array.isArray(client.handshake.query.token)) {
+        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        // }
 
-        const userToken: string = client.handshake.query.token;
+        // const roomMode = Number(client.handshake.query.numberOfPlayers);
+        // const userToken: string = client.handshake.query.token;
+        const roomMode = Number(dto.numberOfPlayers);
+        const userToken: string = dto.token;
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
-        const roomMode = Number(client.handshake.query.numberOfPlayers);
         const generatedPassword = uuid();
         const board = await this.boardRepository.create({
             boardPassword: generatedPassword, roomMode
@@ -111,20 +114,25 @@ export class MessagesService {
         return await client.emit('generatedPassword', generatedPassword);
     }
 
-    async joinRoom(client: Socket) {
-        if (!(client.handshake.query.token) || !(client.handshake.query.boardPassword)) {
-            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        }
-        if (Array.isArray(client.handshake.query.token) || Array.isArray(client.handshake.query.boardId)) {
-            throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        }
+    async joinRoom(client: Socket, dto: JoinRoomDto) {
+        // if (!(client.handshake.query.token) || !(client.handshake.query.boardPassword)) {
+        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        // }
+        // if (Array.isArray(client.handshake.query.token) || Array.isArray(client.handshake.query.boardId)) {
+        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+        // }
 
-        const userToken: string = client.handshake.query.token;
-        client.data.board = client.handshake.query.boardId;
+        // const userToken: string = client.handshake.query.token;
+
+        // client.data.board = boardId;
+        // client.data.board = client.handshake.query.boardId;
+        // const boardPassword = client.handshake.query.boardPassword;
+        // const userToken: string = client.handshake.query.token;
+        const userToken = dto.token;
+        const boardPassword = dto.boardPassword;
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
-        const boardPassword = client.handshake.query.boardPassword;
         const board = await this.boardRepository.findOne({
             where: { boardPassword: boardPassword }, include: { all: true }
         });
@@ -133,7 +141,6 @@ export class MessagesService {
         }
         const boardId = board.id;
 
-        client.data.board = boardId;
         realUser.socketId = client.id;
         realUser.boardId = board.id;
         await realUser.save();

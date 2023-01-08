@@ -1,3 +1,4 @@
+import { JoinRoomDto } from 'src/messages/dto/join-room.dto';
 import { PlayCardDto } from './dto/play-card.dto';
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
@@ -30,8 +31,9 @@ export class MessagesGateway {
 
   @SubscribeMessage('listenToBoard')
   async listenBoard(@ConnectedSocket() client: Socket) {
-    const user = await this.jwtService.verifyAsync(client.handshake.headers.authorization);
-    return await this.messagesService.listenBoard(client);
+    const user = await this.jwtService.verifyAsync(client.handshake.headers.authorization, { secret: process.env.JWT_SECRET || 'secret' });
+    const cards = await this.messagesService.listenBoard(client);
+    return await client.emit('message', cards);
   }
 
   @SubscribeMessage('playCard')
@@ -47,13 +49,13 @@ export class MessagesGateway {
   }
 
   @SubscribeMessage('createRoom')
-  async createRoom(@ConnectedSocket() client: Socket) {
-    return this.messagesService.socketCreateRoom(client)
+  async createRoom(@ConnectedSocket() client: Socket, @MessageBody() dto: CreateSocketRoomDto) {
+    return this.messagesService.socketCreateRoom(client, dto)
   }
 
   @SubscribeMessage('joinRoom')
-  async joinRoom(@ConnectedSocket() client: Socket) {
-    return this.messagesService.joinRoom(client)
+  async joinRoom(@ConnectedSocket() client: Socket, @MessageBody() dto: JoinRoomDto) {
+    return this.messagesService.joinRoom(client, dto)
   }
 
   @SubscribeMessage('leaveRoom')
