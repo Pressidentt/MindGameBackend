@@ -98,7 +98,6 @@ export class MessagesService {
             boardPassword: generatedPassword, roomMode
         });
 
-        await board.save();
         const boardId = board.id;
 
         client.data.board = boardId;
@@ -107,6 +106,7 @@ export class MessagesService {
         realUser.boardId = board.id;
         await realUser.save();
         board.createrUserId = realUser.id;
+        await board.save();
 
         await client.join(`${boardId}`);
         await realUser.save();
