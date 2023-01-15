@@ -46,16 +46,19 @@ export class MessagesService {
 
     async playCard(client: Socket, dto: PlayCardDto) {
         const user = await this.userRepository.findOne({ where: { socketId: client.id }, include: { all: true } })
-        let check = await this.ruleChecker(dto.boardId, dto.cardId);
+        let check: any = await this.ruleChecker(dto.boardId, dto.cardId);
         if (typeof check === 'number') {
-            return check;
+            return true;
+        }
+        if (check === false) {
+            return false;
         }
         const cardDeleteFromUser = await this.userCardRepository.destroy({ where: { cardId: dto.cardId, userId: user.id } })
         const cardForBoard = await this.boardCardRepository.create({ cardId: dto.cardId, boardId: dto.boardId });
         return await cardForBoard.save();
     }
 
-    async ruleChecker(boardId: number, cardId: number) {
+    async ruleChecker(boardId: number, cardId: number): Promise<any>{
         const cardsUsersArr = []
         const userIds = await this.userService.idGetter(boardId)
         for (const user of userIds) {
@@ -64,7 +67,7 @@ export class MessagesService {
             }
         }
         if (cardsUsersArr.some((el) => el < cardId)) {
-            throw new HttpException('GAME OVER!', HttpStatus.BAD_REQUEST);
+           return false; 
         }
         const nextLevelFunc = await this.helperService.nextLevel(boardId)
         if (nextLevelFunc) {
@@ -143,7 +146,7 @@ export class MessagesService {
         await realUser.save();
         await client.join(`${boardId}`);
 
-        await client.emit('joinedRoom', boardId);
+        await client.emit('joinedRoom', board);
         return {boardId, realUser};
     }
 
