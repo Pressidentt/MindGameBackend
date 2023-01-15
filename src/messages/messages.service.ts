@@ -54,6 +54,7 @@ export class MessagesService {
         return await cardForBoard.save();
     }
 
+
     async ruleChecker(boardId: number, cardId: number) {
         const cardsUsersArr = []
         const userIds = await this.userService.idGetter(boardId)
@@ -63,7 +64,7 @@ export class MessagesService {
             }
         }
         if (cardsUsersArr.some((el) => el < cardId)) {
-            throw new HttpException('GAME OVER!', HttpStatus.BAD_REQUEST);
+            return false;
         }
         const nextLevelFunc = await this.helperService.nextLevel(boardId)
         if (nextLevelFunc) {
