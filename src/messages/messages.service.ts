@@ -143,7 +143,8 @@ export class MessagesService {
         await realUser.save();
         await client.join(`${boardId}`);
 
-        return await client.emit('joinedRoom', boardId);
+        await client.emit('joinedRoom', boardId);
+        return {boardId, realUser};
     }
 
     async socketsLeave(socket: Socket, socketName: string) {

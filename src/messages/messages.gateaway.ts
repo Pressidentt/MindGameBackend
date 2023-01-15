@@ -55,7 +55,10 @@ export class MessagesGateway {
 
   @SubscribeMessage('joinRoom')
   async joinRoom(@ConnectedSocket() client: Socket, @MessageBody() dto: JoinRoomDto) {
-    return this.messagesService.joinRoom(client, dto)
+    let result = await this.messagesService.joinRoom(client, dto)
+    const boardId = result.boardId;
+    const user = result.realUser;
+    await this.server.to(String(boardId)).emit('message', 'Someone joined the room')
   }
 
   @SubscribeMessage('leaveRoom')
