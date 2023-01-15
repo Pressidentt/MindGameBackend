@@ -31,7 +31,7 @@ export class MessagesGateway {
     private readonly authService: AuthService,
     private jwtService: JwtService,
     private helperService: HelperService,
-  ) {}
+  ) { }
 
   @WebSocketServer()
   server: Server
@@ -85,10 +85,10 @@ export class MessagesGateway {
   ) {
     let result = await this.messagesService.joinRoom(client, dto)
     const boardId = result.boardId
-    const user = result.realUser
+    const board = result.board
     await this.server
       .to(String(boardId))
-      .emit('message', 'Someone joined the room')
+      .emit('message', board)
   }
 
   @SubscribeMessage('leaveRoom')

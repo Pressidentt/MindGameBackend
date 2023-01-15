@@ -150,7 +150,7 @@ export class MessagesService {
             where: { id: boardId }, include: { all: true }
         });
         await client.emit('joinedRoom', board);
-        return {boardId, realUser};
+        return {boardId, board};
     }
 
     async socketsLeave(socket: Socket, socketName: string) {
