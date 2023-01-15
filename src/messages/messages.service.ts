@@ -133,7 +133,7 @@ export class MessagesService {
         const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
         const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
-        const board = await this.boardRepository.findOne({
+        let board = await this.boardRepository.findOne({
             where: { boardPassword: boardPassword }, include: { all: true }
         });
         if (!board) {
@@ -146,6 +146,9 @@ export class MessagesService {
         await realUser.save();
         await client.join(`${boardId}`);
 
+        board = await this.boardRepository.findOne({
+            where: { id: boardId }, include: { all: true }
+        });
         await client.emit('joinedRoom', board);
         return {boardId, realUser};
     }
