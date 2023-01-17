@@ -47,5 +47,9 @@ export class BoardController {
         return await this.boardService.createCardSeeder()
     }
 
+    @Get('/:id/getCards')
+    async getUserCards(@Client('id') userId: number) {
+        return await this.boardService.getUserCards(userId)
+    }
 
 }
