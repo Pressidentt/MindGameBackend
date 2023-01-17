@@ -1,6 +1,6 @@
 import { CreateRoomDto} from 'src/messages/dto/create-room.dto';
 import { BoardService } from './board.service';
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Client } from 'src/user/decorators/user.decorator';
@@ -48,7 +48,7 @@ export class BoardController {
     }
 
     @Get('/:id/getCards')
-    async getUserCards(@Client('id') userId: number) {
+    async getUserCards(@Param('id', ParseIntPipe) userId: number) {
         return await this.boardService.getUserCards(userId)
     }
 
