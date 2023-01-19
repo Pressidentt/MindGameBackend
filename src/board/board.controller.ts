@@ -35,6 +35,7 @@ export class BoardController {
         return await this.boardService.allRooms()
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('/startGame')
     async testFunc(@Body() cardDivideDto: CardDivideDto,
         @Client('id') userId: number
