@@ -40,7 +40,7 @@ export class BoardController {
     async testFunc(@Body() cardDivideDto: CardDivideDto,
         @Client('id') userId: number
     ) {
-        return await this.boardService.gameStart(userId, cardDivideDto)
+        // return await this.boardService.gameStart(userId, cardDivideDto)
     }
 
     @Post('/seederCard')
