@@ -18,7 +18,7 @@ export class JwtAuthGuard implements CanActivate {
                 throw new UnauthorizedException({message: 'User is not authorized'})
             }
             console.log(token);
-            const user = this.jwtService.verify(token, { secret: process.env.PRIVATE_KEY});
+            const user = this.jwtService.verify(token, { secret: process.env.PRIVATE_KEY || 'secret'});
             req.user = user;
             return true;
         } catch (e) {
