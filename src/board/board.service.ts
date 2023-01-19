@@ -1,3 +1,4 @@
+import { Socket } from 'socket.io';
 import { CreateRoomDto } from 'src/messages/dto/create-room.dto';
 import { UserCards } from './../user/user-card.model';
 import { UserService } from 'src/user/user.service';
@@ -74,9 +75,9 @@ export class BoardService {
         return 'done'
     }
 
-    async gameStart(userId: number, cardDivideDto: CardDivideDto) {
-        const boardId = Number(cardDivideDto.boardId);
-        const realUser = await this.userRepository.findOne({ where: { id: userId }, include: { all: true } })
+    async gameStart(token: string,  boardId: number, client: Socket) {
+        const user = await this.jwtService.verify(token, { secret: process.env.JWT_SECRET || 'secret' });
+        const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
         const board = await this.boardRepository.findOne({ where: { id: boardId }, include: { all: true } })
         const numberOfPlayers = board.users.length;
 

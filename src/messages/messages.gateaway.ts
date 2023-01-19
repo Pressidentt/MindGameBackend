@@ -15,6 +15,7 @@ import { CreateSocketRoomDto } from './dto/create-socket-room.dto'
 import { AuthService } from '../auth/auth.service'
 import { JwtService } from '@nestjs/jwt'
 import { HelperService } from '../helper/helper.service'
+import { HttpException, HttpStatus } from '@nestjs/common'
 
 //  cors : {
 //     origin: '*',
@@ -96,5 +97,15 @@ export class MessagesGateway {
     let boardId = client.handshake.query.boardId
     await this.server.socketsLeave(String(boardId))
     return await this.helperService.destroyRoom(Number(boardId), client)
+  }
+  @SubscribeMessage('gameStart')
+  async gameStart(@ConnectedSocket() client: Socket, @MessageBody() dto: any) {
+    let boardId = Number(dto.boardId)
+    if (Array.isArray(client.handshake.query.token) || Array.isArray(client.handshake.query.boardId)) {
+      throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+    }
+    const token: string = client.handshake.query.token;
+    await this.boardService.gameStart(token, boardId, client)
+    return await this.server.to(String(boardId)).emit('message', 'GAME STARTED!')
   }
 }
