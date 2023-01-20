@@ -62,8 +62,9 @@ export class MessagesService {
         const cardsUsersArr = []
         const userIds = await this.userService.idGetter(boardId)
         for (const user of userIds) {
-            for (const card of user.cards) {
-                cardsUsersArr.push(Number(card.id))
+            let userCards = await this.userCardRepository.findAll({ where: { userId: user }, include: { all: true } })
+            for (const card of userCards) {
+                cardsUsersArr.push(Number(card.cardId))
             }
         }
         if (cardsUsersArr.some((el) => el < cardId)) {
