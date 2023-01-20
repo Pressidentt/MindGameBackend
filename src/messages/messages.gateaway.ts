@@ -55,11 +55,15 @@ export class MessagesGateway {
     let boardId = Number(dto.boardId)
     let card = await this.messagesService.playCard(client, dto)
     if (card === false) {
-      await client.emit('message', 'Game over')
-      return await this.server.to(String(boardId)).emit('message', 'Game over')
+      let dto = {
+        boardId: boardId
+      }
+      await this.leaveRoom(client, dto)
+      await client.emit('Game Over', 'Game over')
+      return await this.server.to(String(boardId)).emit('Game Over', 'Game over')
     } else if (card === true) {
-      await client.emit('message', 'Victory')
-      this.server.to(String(boardId)).emit('message', 'Victory')
+      await client.emit('Victory', 'Victory')
+      this.server.to(String(boardId)).emit('Victory', 'Victory')
     }
     else {
       await this.server.to(String(boardId)).emit('message', card)
@@ -93,8 +97,8 @@ export class MessagesGateway {
   }
 
   @SubscribeMessage('leaveRoomAll')
-  async leaveRoom(@ConnectedSocket() client: Socket) {
-    let boardId = client.handshake.query.boardId
+  async leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() dto: any) {
+    let boardId = Number(dto.boardId);
     await this.server.socketsLeave(String(boardId))
     return await this.helperService.destroyRoom(Number(boardId), client)
   }
