@@ -37,6 +37,13 @@ export class HelperService {
         await board.save();
         return;
     }
+    async addLive(boardId: number) {
+        const board = await this.boardRepository.findOne({ where: { id: boardId } });
+
+        board.numOfLives += 1;
+        await board.save();
+        return;
+    }
 
     async nextLevel(boardId: number) {
         const board = await this.boardRepository.findOne({
