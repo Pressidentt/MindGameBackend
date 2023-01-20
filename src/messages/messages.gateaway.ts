@@ -103,7 +103,6 @@ export class MessagesGateway {
     let boardId = Number(dto.boardId)
     const token: string = dto.token;
     await this.boardService.gameStart(token, boardId, client)
-    //test
-    return await this.server.to(String(boardId)).emit('message', 'GAME STARTED!')
+    return await this.server.to(String(boardId)).emit('GAME STARTED!', 'GAME STARTED!')
   }
 }
