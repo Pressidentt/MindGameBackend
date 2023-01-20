@@ -29,12 +29,13 @@ export class HelperService {
             where: { id: boardId }, include: { all: true }
         });
 
-        if (board.numOfLives == 0) {
-
+        if (board.numOfLives === 0) {
+            // Game over
+        } else {
+            board.numOfLives = board.numOfLives--;
         }
-        else {
-            board.numOfLives
-        }
+        await board.save();
+        return;
     }
 
     async nextLevel(boardId: number) {
