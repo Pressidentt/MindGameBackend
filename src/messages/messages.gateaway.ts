@@ -92,11 +92,19 @@ export class MessagesGateway {
       .emit('message', board)
   }
 
-  @SubscribeMessage('leaveRoom')
+  @SubscribeMessage('leaveRoomAll')
   async leaveRoom(@ConnectedSocket() client: Socket) {
     let boardId = client.handshake.query.boardId
     await this.server.socketsLeave(String(boardId))
     return await this.helperService.destroyRoom(Number(boardId), client)
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async leaveRoomOne(@ConnectedSocket() client: Socket) {
+    let boardId = client.handshake.query.boardId
+    await this.helperService.removeOneUser(client);
+    await this.helperService.socketLeave(client);
+    return await this.server.to(String(boardId)).emit('User disconnected', 'User disconnected')
   }
   @SubscribeMessage('gameStart')
   async gameStart(@ConnectedSocket() client: Socket, @MessageBody() dto: any) {

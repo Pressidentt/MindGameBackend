@@ -4,6 +4,7 @@ import { Socket } from 'socket.io'
 import { BoardCards } from '../board/board-cards.model'
 import { Board } from '../board/board.model'
 import { UserCards } from '../user/user-card.model'
+import { User } from '../user/user.model'
 
 @Injectable()
 export class HelperService {
@@ -11,7 +12,8 @@ export class HelperService {
     @InjectModel(Board) private boardRepository: typeof Board,
     @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
     @InjectModel(UserCards) private userCard: typeof UserCards,
-  ) {}
+    @InjectModel(User) private userRepository: typeof User,
+  ) { }
 
   async socketLeave(client: Socket) {
     let boardId = client.data.board
@@ -28,12 +30,27 @@ export class HelperService {
     })
     let users = board.users
     for (const user of users) {
-        await this.deleteCardsFromUser(user.id)
-        user.boardId = null
-        await user.save()
+      await this.deleteCardsFromUser(user.id)
+      user.boardId = null
+      await user.save()
     }
     await board.destroy()
     return await client.emit('roomDestroyed')
+  }
+
+  async removeOneUser(client: Socket) {
+    const user = await this.userRepository.findOne({
+      where: {
+        socketId: client.id,
+      },
+      include: {
+        all: true
+      },
+    });
+    await this.deleteCardsFromUser(user.id)
+    user.boardId = null
+    await user.save()
+    return await client.emit('disconnected')
   }
 
   async deleteCardsFromBoard(boardId: number) {
