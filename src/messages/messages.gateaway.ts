@@ -97,7 +97,7 @@ export class MessagesGateway {
     const board = result.board
     await this.server
       .to(String(boardId))
-      .emit('message', board)
+      .emit('someoneJoinedRoom', board)
   }
 
   @SubscribeMessage('leaveRoomAll')

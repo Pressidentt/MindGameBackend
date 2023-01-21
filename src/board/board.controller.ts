@@ -53,4 +53,9 @@ export class BoardController {
         return await this.boardService.getUserCards(userId)
     }
 
+    @Get('/:id/getUsers')
+    async getBoardUsers(@Param('id', ParseIntPipe) boardId: number) {
+        return await this.boardService.getBoardUsers(boardId)
+    }
+
 }

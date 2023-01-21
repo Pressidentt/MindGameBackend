@@ -147,4 +147,8 @@ export class BoardService {
         const user = await this.userRepository.findOne({ where: { id: userId }, include: { all: true } })
         return user.cards;
     }
+    async getBoardUsers(boardId: number) {
+        const board = await this.boardRepository.findOne({ where: { id: boardId }, include: { all: true } })
+        return board.users;
+    }
 }
