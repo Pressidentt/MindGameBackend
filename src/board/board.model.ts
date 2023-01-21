@@ -28,6 +28,9 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, defaultValue: 4})
     roomMode: number;
 
+    @Column({type: DataType.INTEGER, defaultValue: 4})
+    numOfLives: number;
+
     @Column({type: DataType.STRING, unique: true, allowNull: false})
     boardPassword: string;
 

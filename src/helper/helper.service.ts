@@ -24,6 +24,27 @@ export class HelperService {
         return;
     }
 
+    async removeLive(boardId: number) {
+        const board = await this.boardRepository.findOne({
+            where: { id: boardId }, include: { all: true }
+        });
+
+        if (board.numOfLives === 0) {
+            // Game over
+        } else {
+            board.numOfLives = board.numOfLives--;
+        }
+        await board.save();
+        return;
+    }
+    async addLive(boardId: number) {
+        const board = await this.boardRepository.findOne({ where: { id: boardId } });
+
+        board.numOfLives += 1;
+        await board.save();
+        return;
+    }
+
     async nextLevel(boardId: number) {
         const board = await this.boardRepository.findOne({
             where: { id: boardId }, include: { all: true }
@@ -42,10 +63,11 @@ export class HelperService {
         const board = await this.boardRepository.findOne({
             where: { id: boardId }, include: { all: true }
         });
-        const numberOfPlayers = board.users.length;
+
         const numberOfLevels3pl = 10;
         const numberOfLevels2pl = 12;
 
+        const numberOfPlayers = board.users.length;
         const roomModeFor3 = 3;
         const roomModeFor2 = 2;
 
@@ -64,5 +86,34 @@ export class HelperService {
         }
 
         return roomLevel;
+    }
+
+    async livesCount(boardId: number) {
+        const board = await this.boardRepository.findOne({
+            where: { id: boardId }, include: { all: true }
+        });
+
+        const numberOfPlayers = board.users.length;
+        const roomModeFor3 = 3;
+        const roomModeFor2 = 2;
+
+        const livesMode3 = 3;
+        const livesMode2 = 2;
+
+        let roomLives = 0;
+
+        for(let i = 0; i <= numberOfPlayers; i++) {
+            if(i === board.roomMode) {
+                roomLives = board.numOfLives;
+            }
+            else if(i === roomModeFor3) {
+                roomLives = livesMode3;
+            }
+            else if(i === roomModeFor2) {
+                roomLives = livesMode2;
+            }
+        }
+
+        return roomLives;
     }
 }
