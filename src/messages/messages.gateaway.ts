@@ -66,7 +66,7 @@ export class MessagesGateway {
       this.server.to(String(boardId)).emit('Victory', 'Victory')
     }
     else {
-      await this.server.to(String(boardId)).emit('message', card)
+      await this.server.to(String(boardId)).emit('cardPlayed', card);
     }
   }
 
