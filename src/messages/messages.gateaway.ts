@@ -53,7 +53,7 @@ export class MessagesGateway {
     @MessageBody() dto: PlayCardDto,
   ) {
     let boardId = Number(dto.boardId)
-    let card = await this.messagesService.playCard(client, dto)
+    let card = await this.messagesService.playCard(client, dto);
     if (card === false) {
       let dto = {
         boardId: boardId
@@ -61,9 +61,13 @@ export class MessagesGateway {
       await this.leaveRoom(client, dto)
       await client.emit('Game Over', 'Game over')
       return await this.server.to(String(boardId)).emit('Game Over', 'Game over')
-    } else if (card === true) {
+    } else if (card === 'Victory') {
       await client.emit('Victory', 'Victory')
       this.server.to(String(boardId)).emit('Victory', 'Victory')
+    }
+    else if (card === 'nextLevel') {
+      await client.emit('New Round', 'New round')
+      this.server.to(String(boardId)).emit('New Round', 'New round')
     }
     else {
       await this.server.to(String(boardId)).emit('cardPlayed', card);

@@ -46,19 +46,24 @@ export class MessagesService {
 
     async playCard(client: Socket, dto: PlayCardDto) {
         const user = await this.userRepository.findOne({ where: { socketId: client.id }, include: { all: true } })
-        let check: any = await this.ruleChecker(dto.boardId, dto.cardId);
-        if (typeof check === 'number') {
-            return true;
-        }
-        if (check === false) {
-            return false;
-        }
         const cardDeleteFromUser = await this.userCardRepository.destroy({ where: { cardId: dto.cardId, userId: user.id } })
         const cardForBoard = await this.boardCardRepository.create({ cardId: dto.cardId, boardId: dto.boardId });
-        return await cardForBoard.save();
+        await cardForBoard.save();
+
+        let check: any = await this.ruleChecker(dto.boardId, dto.cardId);
+        if (check === 'nextLevel') {
+            return 'nextLevel';
+        }
+        else if (check === 'Victory') {
+            return 'Victory';
+        }
+        else if (check === false) {
+            return false;
+        }
+        return true;
     }
 
-    async ruleChecker(boardId: number, cardId: number): Promise<any>{
+    async ruleChecker(boardId: number, cardId: number): Promise<any> {
         const cardsUsersArr = []
         const userIds = await this.userService.idGetter(boardId)
         for (const user of userIds) {
@@ -68,11 +73,14 @@ export class MessagesService {
             }
         }
         if (cardsUsersArr.some((el) => el < cardId)) {
-           return false; 
+            return false;
         }
-        const nextLevelFunc = await this.helperService.nextLevel(boardId)
-        if (nextLevelFunc) {
-            return nextLevelFunc
+        if (cardsUsersArr.length === 0) {
+            let nextLevelFunc = await this.helperService.nextLevel(boardId)
+            if (nextLevelFunc === 'nextLevel') {
+                return 'nextLevel';
+            }
+            return 'Victory';
         }
         return true;
     }
@@ -99,7 +107,7 @@ export class MessagesService {
 
         const generatedPassword = uuid();
         const board = await this.boardRepository.create({
-            boardPassword: generatedPassword, roomMode, createrUserId: realUser.id 
+            boardPassword: generatedPassword, roomMode, createrUserId: realUser.id
         });
         await board.save();
 
@@ -151,7 +159,7 @@ export class MessagesService {
             where: { id: boardId }, include: { all: true }
         });
         await client.emit('joinedRoom', board);
-        return {boardId, board};
+        return { boardId, board };
     }
 
     async socketsLeave(socket: Socket, socketName: string) {

@@ -1,3 +1,5 @@
+import { LevelCardDivideDto } from './../board/dto/level-card-divide.dto';
+import { BoardService } from './../board/board.service';
 import { Injectable, UseFilters } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { Socket } from 'socket.io'
@@ -13,6 +15,7 @@ export class HelperService {
     @InjectModel(BoardCards) private boardCardRepository: typeof BoardCards,
     @InjectModel(UserCards) private userCard: typeof UserCards,
     @InjectModel(User) private userRepository: typeof User,
+    private boardService: BoardService,
   ) { }
 
   async socketLeave(client: Socket) {
@@ -75,11 +78,16 @@ export class HelperService {
     await this.deleteCardsFromBoard(boardId)
     if (board.numberOfLevels - board.currentLevel) {
       board.currentLevel = board.currentLevel++
-      await board.save()
-      return
+      await board.save();
+      let levelCardDivideDto = new LevelCardDivideDto();
+      levelCardDivideDto.boardId = board.id;
+      levelCardDivideDto.currentRoundNumber = board.currentLevel; 
+      levelCardDivideDto.numberOfPlayers = board.users.length;
+      await this.boardService.cardDividerForNthRound(levelCardDivideDto);
+      return 'nextLevel';
     }
     //Game Victory
-    return board.currentLevel
+    return board.currentLevel;
   }
 
   async levelCount(boardId: number) {
