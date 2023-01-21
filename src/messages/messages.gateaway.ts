@@ -63,11 +63,11 @@ export class MessagesGateway {
       return await this.server.to(String(boardId)).emit('Game Over', 'Game over')
     } else if (card === 'Victory') {
       await client.emit('Victory', 'Victory')
-      this.server.to(String(boardId)).emit('Victory', 'Victory')
+      await this.server.to(String(boardId)).emit('Victory', 'Victory')
     }
     else if (card === 'nextLevel') {
       await client.emit('New Round', 'New round')
-      this.server.to(String(boardId)).emit('New Round', 'New round')
+      await this.server.to(String(boardId)).emit('New Round', 'New round')
     }
     else {
       await this.server.to(String(boardId)).emit('cardPlayed', card);
