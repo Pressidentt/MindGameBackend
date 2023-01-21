@@ -119,8 +119,12 @@ export class MessagesService {
 
         await realUser.save();
         await client.join(`${boardId}`);
+        const returnObj = {
+            boardId,
+            generatedPassword
+        }
 
-        return await client.emit('generatedPassword', generatedPassword);
+        return await client.emit('Created Room', returnObj);
     }
 
     async joinRoom(client: Socket, dto: JoinRoomDto) {
