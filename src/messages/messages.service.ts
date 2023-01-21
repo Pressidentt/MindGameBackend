@@ -60,7 +60,7 @@ export class MessagesService {
         else if (check === false) {
             return false;
         }
-        return true;
+        return dto.cardId;
     }
 
     async ruleChecker(boardId: number, cardId: number): Promise<any> {
