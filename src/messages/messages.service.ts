@@ -152,6 +152,7 @@ export class MessagesService {
             // client.data.board = client.handshake.query.boardId;
             // const boardPassword = client.handshake.query.boardPassword;
             // const userToken: string = client.handshake.query.token;
+            // test
             const userToken = dto.token;
             const boardPassword = dto.boardPassword;
             const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
