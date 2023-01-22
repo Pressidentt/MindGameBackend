@@ -60,7 +60,10 @@ export class MessagesService {
         else if (check === false) {
             return false;
         }
-        return dto.cardId;
+        const board = await this.boardRepository.findOne({ where: { id: dto.boardId }, include: { all: true } });
+        let cardId = dto.cardId;
+        let curLevel = board.currentLevel;
+        return {cardId, curLevel};
     }
 
     async ruleChecker(boardId: number, cardId: number): Promise<any> {

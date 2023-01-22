@@ -71,17 +71,19 @@ export class HelperService {
   }
 
   async nextLevel(boardId: number) {
+    let curLevel = 0;
     const board = await this.boardRepository.findOne({
       where: { id: boardId },
       include: { all: true },
     })
-    await this.deleteCardsFromBoard(boardId)
-    if (board.numberOfLevels - board.currentLevel) {
+    await this.deleteCardsFromBoard(boardId);
+    if (board.numberOfLevels - board.currentLevel <= 0) {
+      curLevel = board.currentLevel; 
       board.currentLevel = board.currentLevel++
       await board.save();
       let levelCardDivideDto = new LevelCardDivideDto();
       levelCardDivideDto.boardId = board.id;
-      levelCardDivideDto.currentRoundNumber = board.currentLevel; 
+      levelCardDivideDto.currentRoundNumber = curLevel++;
       levelCardDivideDto.numberOfPlayers = board.users.length;
       await this.boardService.cardDividerForNthRound(levelCardDivideDto);
       return 'nextLevel';
