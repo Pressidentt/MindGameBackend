@@ -133,6 +133,7 @@ export class BoardService {
                 }
                 else {
                     cardArr.push(cardNum)
+                    console.log(` k = ${k}, i = ${i}, User Id: ${idsArr[i]} Card Id: ${cardNum}`)
                     let userCard = await this.cardUserCardRepository.create({
                         userId: idsArr[i],
                         cardId: cardNum
