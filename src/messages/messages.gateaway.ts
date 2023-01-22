@@ -60,7 +60,7 @@ export class MessagesGateway {
       }
       await this.leaveRoom(client, dto)
       await client.emit('Game Over', 'Game over')
-      return await this.server.to(String(boardId)).emit('Game Over', 'Game over')
+      await this.server.to(String(boardId)).emit('Game Over', 'Game over')
     } else if (card === 'Victory') {
       await client.emit('Victory', 'Victory')
       await this.server.to(String(boardId)).emit('Victory', 'Victory')
