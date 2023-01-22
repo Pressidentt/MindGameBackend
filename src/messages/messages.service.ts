@@ -63,11 +63,14 @@ export class MessagesService {
         const board = await this.boardRepository.findOne({ where: { id: dto.boardId }, include: { all: true } });
         let cardId = dto.cardId;
         let curLevel = board.currentLevel;
-        return {cardId, curLevel};
+        let curNumberOfLives = board.numberOfLives;
+        return { cardId, curLevel, curNumberOfLives };
     }
 
     async ruleChecker(boardId: number, cardId: number): Promise<any> {
         const cardsUsersArr = []
+        const board = await this.boardRepository.findOne({ where: { id: boardId }, include: { all: true } });
+        let numberOfLives = board.numberOfLives;
         const userIds = await this.userService.idGetter(boardId)
         for (const user of userIds) {
             let userCards = await this.userCardRepository.findAll({ where: { userId: user }, include: { all: true } })
@@ -76,100 +79,105 @@ export class MessagesService {
             }
         }
         if (cardsUsersArr.some((el) => el < cardId)) {
-            return false;
-        }
-        if (cardsUsersArr.length === 0) {
-            let nextLevelFunc = await this.helperService.nextLevel(boardId)
-            if (nextLevelFunc === 'nextLevel') {
-                return 'nextLevel';
+            numberOfLives--;
+            board.numberOfLives = numberOfLives;
+            await board.save();
+            if (numberOfLives === 0) {
+                return false;
             }
-            return 'Victory';
         }
-        return true;
+            if (cardsUsersArr.length === 0) {
+                let nextLevelFunc = await this.helperService.nextLevel(boardId)
+                if (nextLevelFunc === 'nextLevel') {
+                    return 'nextLevel';
+                }
+                return 'Victory';
+            }
+            return true;
     }
 
     async boardIdString(client: Socket) {
-        return "boardId"
-    }
+            return "boardId"
+        }
 
 
     async socketCreateRoom(client: Socket, dto: CreateSocketRoomDto) {
-        // if (!(client.handshake.query.token) || !(client.handshake.query.numberOfPlayers)) {
-        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        // }
-        // if (Array.isArray(client.handshake.query.token)) {
-        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        // }
+            // if (!(client.handshake.query.token) || !(client.handshake.query.numberOfPlayers)) {
+            //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+            // }
+            // if (Array.isArray(client.handshake.query.token)) {
+            //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+            // }
 
-        // const roomMode = Number(client.handshake.query.numberOfPlayers);
-        // const userToken: string = client.handshake.query.token;
-        const roomMode = Number(dto.numberOfPlayers);
-        const userToken: string = dto.token;
-        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
-        const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
+            // const roomMode = Number(client.handshake.query.numberOfPlayers);
+            // const userToken: string = client.handshake.query.token;
+            const roomMode = Number(dto.numberOfPlayers);
+            const userToken: string = dto.token;
+            const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
+            const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
-        const generatedPassword = uuid();
-        const board = await this.boardRepository.create({
-            boardPassword: generatedPassword, roomMode, createrUserId: realUser.id
-        });
-        await board.save();
+            const generatedPassword = uuid();
+            const board = await this.boardRepository.create({
+                boardPassword: generatedPassword, roomMode, createrUserId: realUser.id
+            });
+            await board.save();
 
-        const boardId = board.id;
+            const boardId = board.id;
 
-        // client.data.board = boardId;
-        realUser.socketId = client.id;
-        realUser.boardId = board.id;
+            // client.data.board = boardId;
+            realUser.socketId = client.id;
+            realUser.boardId = board.id;
 
-        await realUser.save();
-        await client.join(`${boardId}`);
-        const returnObj = {
-            boardId,
-            generatedPassword
+            await realUser.save();
+            await client.join(`${boardId}`);
+            const returnObj = {
+                boardId,
+                generatedPassword
+            }
+
+            return await client.emit('Created Room', returnObj);
         }
-
-        return await client.emit('Created Room', returnObj);
-    }
 
     async joinRoom(client: Socket, dto: JoinRoomDto) {
-        // if (!(client.handshake.query.token) || !(client.handshake.query.boardPassword)) {
-        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        // }
-        // if (Array.isArray(client.handshake.query.token) || Array.isArray(client.handshake.query.boardId)) {
-        //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
-        // }
+            // if (!(client.handshake.query.token) || !(client.handshake.query.boardPassword)) {
+            //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+            // }
+            // if (Array.isArray(client.handshake.query.token) || Array.isArray(client.handshake.query.boardId)) {
+            //     throw new HttpException('Bad request params', HttpStatus.BAD_REQUEST);
+            // }
 
-        // const userToken: string = client.handshake.query.token;
+            // const userToken: string = client.handshake.query.token;
 
-        // client.data.board = boardId;
-        // client.data.board = client.handshake.query.boardId;
-        // const boardPassword = client.handshake.query.boardPassword;
-        // const userToken: string = client.handshake.query.token;
-        const userToken = dto.token;
-        const boardPassword = dto.boardPassword;
-        const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
-        const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
+            // client.data.board = boardId;
+            // client.data.board = client.handshake.query.boardId;
+            // const boardPassword = client.handshake.query.boardPassword;
+            // const userToken: string = client.handshake.query.token;
+            const userToken = dto.token;
+            const boardPassword = dto.boardPassword;
+            const user = await this.jwtService.verifyAsync(userToken, { secret: process.env.PRIVATE_KEY || 'secret' });
+            const realUser = await this.userRepository.findOne({ where: { id: user.id }, include: { all: true } })
 
-        let board = await this.boardRepository.findOne({
-            where: { boardPassword: boardPassword }, include: { all: true }
-        });
-        if (!board) {
-            throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
+            let board = await this.boardRepository.findOne({
+                where: { boardPassword: boardPassword }, include: { all: true }
+            });
+            if (!board) {
+                throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
+            }
+            const boardId = board.id;
+
+            realUser.socketId = client.id;
+            realUser.boardId = board.id;
+            await realUser.save();
+            await client.join(`${boardId}`);
+
+            board = await this.boardRepository.findOne({
+                where: { id: boardId }, include: { all: true }
+            });
+            await client.emit('joinedRoom', board);
+            return { boardId, board };
         }
-        const boardId = board.id;
-
-        realUser.socketId = client.id;
-        realUser.boardId = board.id;
-        await realUser.save();
-        await client.join(`${boardId}`);
-
-        board = await this.boardRepository.findOne({
-            where: { id: boardId }, include: { all: true }
-        });
-        await client.emit('joinedRoom', board);
-        return { boardId, board };
-    }
 
     async socketsLeave(socket: Socket, socketName: string) {
-        await socket.leave(socketName);
+            await socket.leave(socketName);
+        }
     }
-}

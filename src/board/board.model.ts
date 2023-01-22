@@ -23,6 +23,9 @@ export class Board extends Model<Board, BoardCreationAttrs> {
     @Column({type: DataType.INTEGER, defaultValue: 8})
     numberOfLevels: number;
 
+    @Column({type: DataType.INTEGER, defaultValue: 4})
+    numberOfLives: number;
+
     @Column({type: DataType.INTEGER, defaultValue: 1})
     currentLevel: number;
 
