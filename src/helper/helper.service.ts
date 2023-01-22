@@ -77,7 +77,7 @@ export class HelperService {
       include: { all: true },
     })
     await this.deleteCardsFromBoard(boardId);
-    if (board.numberOfLevels - board.currentLevel <= 0) {
+    if (board.numberOfLevels - board.currentLevel > 0) {
       curLevel = board.currentLevel; 
       board.currentLevel = board.currentLevel++
       await board.save();
