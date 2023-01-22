@@ -124,6 +124,7 @@ export class BoardService {
         const idsArr = await this.userService.idGetter(boardId);
         const roomLevel = Number(levelCardDivideDto.currentRoundNumber);
         const cardArr = [];
+        console.log(`roomLevel = ${roomLevel}, numberOfPlayers = ${numberOfPlayers}`);
 
         for (let k = 0; k < roomLevel; k++) {
             for (let i = 0; i < numberOfPlayers; i++) {

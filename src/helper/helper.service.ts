@@ -79,11 +79,11 @@ export class HelperService {
     await this.deleteCardsFromBoard(boardId);
     if (board.numberOfLevels - board.currentLevel > 0) {
       curLevel = board.currentLevel; 
-      board.currentLevel = board.currentLevel++
+      board.currentLevel = board.currentLevel + 1;
       await board.save();
       let levelCardDivideDto = new LevelCardDivideDto();
       levelCardDivideDto.boardId = board.id;
-      levelCardDivideDto.currentRoundNumber = curLevel++;
+      levelCardDivideDto.currentRoundNumber = curLevel + 1;
       levelCardDivideDto.numberOfPlayers = board.users.length;
       await this.boardService.cardDividerForNthRound(levelCardDivideDto);
       return 'nextLevel';
